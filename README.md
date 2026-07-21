@@ -283,5 +283,3 @@ CSV-Export (nur `it-lead`) über die Audit-Seite im Frontend – exportiert die 
 ## Lizenz
 
 Internes Tool – Stadt Musterstadt, IT-Administration. Nicht zur Weitergabe bestimmt.
-#   C o n n O p s - I n t e g r a t i o n - O p e r a t i o n s - P l a t f o r m  
- 
