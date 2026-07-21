@@ -1,201 +1,408 @@
 # ConnOps — IT Operations Platform
 
-[#connops-it-operations-platform](#connops-it-operations-platform)
-> A full-stack internal platform built to replace fragmented manual IT administration workflows with centralized, auditable, and automation-friendly tooling.
+> A full-stack internal IT operations platform that centralizes Active Directory administration, asset management, Citrix session visibility, and operational workflows into a single, secure, and auditable web application.
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://react.dev)
-[![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-5391FE?logo=powershell&logoColor=white)](https://microsoft.com/powershell)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Process--Data-4169E1?logo=postgresql&logoColor=white)](https://postgresql.org)
-[![SQLite](https://img.shields.io/badge/SQLite-Audit--Log-003B57?logo=sqlite&logoColor=white)](https://sqlite.org)
+[![Express](https://img.shields.io/badge/Express-Backend-000000?logo=express&logoColor=white)](https://expressjs.com)
+[![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-5391FE?logo=powershell&logoColor=white)](https://learn.microsoft.com/powershell/)
+[![SQLite](https://img.shields.io/badge/SQLite-Audit_Log-003B57?logo=sqlite&logoColor=white)](https://sqlite.org)
+[![License](https://img.shields.io/badge/License-Private-red)]()
 
 ---
 
-## Why I Built This
+# Table of Contents
 
-[#why-i-built-this](#why-i-built-this)
-
-At my company, many IT processes still relied on large PowerShell scripts, manual Active Directory operations, disconnected CSV exports, and no centralized audit trail. The result was significant operational friction:
-
-- Onboarding/offboarding took too long
-- Support staff manually logged into multiple enterprise systems for routine operations
-- Every account or device change required navigating separate administrative interfaces
-- Operational changes were difficult to trace afterward
-- Repetitive workflows consumed large amounts of time
-- Fragmented tooling increased context switching and overhead
-- Support staff had inconsistent permissions
-
-That meant constant context switching between Active Directory tools, Exchange administration, Citrix administration, inventory systems, and internal management portals — with no single source of truth.
-
-This platform centralizes and standardizes those operations into a single product with a clean web interface, role-based access control, centralized audit logging, reusable backend actions, automation hooks, and operational observability.
-> I strongly believe internal tools deserve the same product thinking as customer-facing software. Poor operational tooling creates hidden friction that compounds daily across support and infrastructure teams.
----
-
-## Core Features
-
-[#core-features](#core-features)
-
-| Feature                       | Description                                                                                   |
-| ------------------------------ | --------------------------------------------------------------------------------------------- |
-| **AD User Management**        | Search, enable/disable, unlock, reset passwords, edit metadata, manage group memberships      |
-| **Computer Management**       | Search AD computers, enable/disable machines, associate devices with sessions                 |
-| **Exchange Mailbox Management** | On-prem mailbox operations through the same PowerShell worker-pool abstraction as AD          |
-| **Citrix Session Monitoring** | Import active sessions from CSV, map users to client machines                                 |
-| **Asset Tracking**            | Docusnap CSV import pipeline, device status tracking, QR-code workflows, inventory visibility |
-| **Asset Handover**            | Digitally signed PDF handover documents (letterhead + signature pad), per-user history         |
-| **Organization Management**   | Departments and roles as the foundation for automated workflows (write access: `it-lead` only) |
-| **Reports**                   | Time-range reports across user/computer/TopDesk activity, exportable as PDF or CSV             |
-| **Admin Console**             | Role-to-permission assignment, expanding incrementally to further config areas                |
-| **RBAC**                      | Three roles: `helpdesk`, `it-admin`, `it-lead` — enforced server-side                         |
-| **Audit Logging**             | Every operation logged with actor, target, timestamp, result, request ID, and metadata        |
-| **Global Search**             | Unified search across users and computers                                                     |
+- [Overview](#overview)
+- [Why ConnOps?](#why-connops)
+- [Core Features](#core-features)
+- [Architecture](#architecture)
+- [System Integrations](#system-integrations)
+- [Security](#security)
+- [Audit & Observability](#audit--observability)
 
 ---
 
-## Product Thinking
+# Overview
 
-[#product-thinking](#product-thinking)
+ConnOps is an internal IT operations platform developed to simplify and standardize administrative tasks across multiple enterprise systems.
 
-This project was intentionally designed like a product, not just an internal script collection.
+Instead of switching between Active Directory consoles, PowerShell scripts, inventory tools, Citrix administration, and IT service management systems, administrators perform their daily work through a single web application with centralized authentication, authorization, auditing, and automation support.
 
-| Goal                        | Implementation                      |
-| ---------------------------- | ------------------------------------ |
-| Reduce operational toil     | Centralized workflows + automation  |
-| Prevent unsafe operations   | RBAC + validation layers            |
-| Make actions traceable      | Structured audit logs               |
-| Improve developer velocity  | Modular action architecture         |
-| Support future integrations | Service-oriented backend            |
-| Keep ops simple              | Minimal infrastructure requirements |
+The project follows a clear architectural principle:
 
-A major focus was balancing developer ergonomics, operational safety, extensibility, and low deployment complexity.
+> **Integrate existing enterprise systems instead of replacing them.**
+
+ConnOps acts as the orchestration layer between established infrastructure components while keeping each external system responsible for its own data.
+
+Current integrations include:
+
+- Microsoft Active Directory
+- Microsoft Exchange (internal integration)
+- Citrix
+- Docusnap
+- TopDesk
+- PDF document generation
+- Centralized audit logging
 
 ---
 
-## Architecture
+# Why ConnOps?
 
-[#architecture](#architecture)
+Like many organizations, our IT department relied on several disconnected administration tools and numerous PowerShell scripts.
 
-### Frontend
+Typical workflows required administrators to switch continuously between different applications:
 
-[#frontend](#frontend)
+- Active Directory Users & Computers
+- Exchange administration
+- Citrix administration
+- Asset management
+- ITSM software
+- Custom PowerShell scripts
 
-**Stack:** React 18, Vite, Tailwind CSS, Radix UI primitives, React Router
+This caused several operational problems:
 
-The frontend is intentionally thin — business logic lives in backend actions. Design goals: operational speed, low cognitive overhead, minimal clicks for repetitive tasks, fast rendering for large result sets.
+- repetitive manual work
+- inconsistent workflows
+- duplicated information
+- missing auditability
+- difficult permission management
+- high context switching
+- limited automation possibilities
 
-### Backend
+ConnOps was created to consolidate these workflows into one consistent platform.
 
-[#backend](#backend)
+Rather than introducing another isolated management tool, ConnOps provides a common operational layer that connects existing systems and enables future automation.
 
-**Stack:** Node.js, Express, PowerShell integration layer, PostgreSQL, SQLite, Winston
+---
 
-The backend acts as the orchestration layer between Active Directory, Exchange, Citrix exports, Docusnap data, TopDesk, and internal automation workflows. A key architectural decision was separating routes, actions, services, and middleware — this made the codebase significantly easier to extend.
+# Core Features
 
-### Action-Based Architecture
+| Feature | Description |
+|----------|-------------|
+| **Active Directory User Management** | Search users, edit user information, enable/disable accounts, unlock users, reset passwords and manage group memberships. |
+| **Computer Management** | Search Active Directory computer accounts and enable or disable computers. |
+| **Citrix Integration** | Display active Citrix sessions for users and computers and perform administrative session actions. |
+| **Asset Management** | Import Docusnap inventory data, display asset information and manage device lifecycle states. |
+| **QR-Code Workflows** | Manage hardware status changes using QR-code based workflows. |
+| **Audit Logging** | Record administrative operations with timestamps, actors, targets and execution results. |
+| **Role Based Access Control** | Server-side permission model based on Active Directory groups. |
+| **Organization Management** | Manage organizational structures that serve as the foundation for workflow automation. |
+| **TopDesk Integration** | Foundation for automated processing of ITSM-driven operational workflows. |
+| **Health Monitoring** | Central system health information for integrated components. |
+| **Reporting** | Generate operational reports from collected audit information. |
 
-[#action-based-architecture](#action-based-architecture)
+The platform is designed as a modular system where additional integrations can be added without changing the existing application architecture.
 
-One of the most important architectural decisions was introducing isolated backend actions:
+---
+
+# Architecture
+
+ConnOps follows a layered architecture with clearly separated responsibilities.
 
 ```
-routes/users.js
-  → actions/user/disableUser.js
-    → services/adClient.js
-      → PowerShell worker
+                React Frontend
+                      │
+                      ▼
+              REST API (Express)
+                      │
+                      ▼
+              Business Layer
+                      │
+          ┌───────────┼───────────┐
+          ▼           ▼           ▼
+   Active Directory  Citrix   Docusnap
+          │
+          ▼
+   PowerShell Worker
 ```
 
-Benefits: easier testing, smaller failure surface, reusable business logic, centralized audit logging, cleaner authorization boundaries. The same pattern now extends to Exchange (`services/exchangeClient.js`) and TopDesk change execution.
+The API layer is intentionally kept thin.
 
-### PowerShell Worker Pool
+Its responsibilities are limited to:
 
-[#powershell-worker-pool](#powershell-worker-pool)
+- receiving requests
+- validating input
+- authentication
+- authorization
+- delegating work to the Business Layer
+- returning responses
 
-Active Directory and Exchange operations run through a shared PowerShell bridge with a worker abstraction layer, centralized execution, structured error handling, and isolated operational actions — reducing duplicated logic and shell execution risks while leveraging existing enterprise tooling.
+Business logic is implemented outside the routing layer, making the system easier to maintain, extend and test.
+
+This separation significantly reduces coupling between HTTP endpoints and operational functionality.
 
 ---
 
-## Auditability & Observability
+## Backend
 
-[#auditability--observability](#auditability--observability)
+The backend is implemented using **Node.js** and **Express**.
 
-Every critical action writes a structured log entry:
+Major architectural goals include:
 
+- clear separation of responsibilities
+- centralized authorization
+- reusable business actions
+- structured error handling
+- consistent audit logging
+- integration of existing enterprise systems
+
+Administrative operations are executed through dedicated service components rather than directly inside API routes.
+
+---
+
+## Frontend
+
+The frontend is built with **React**, **Vite** and **Tailwind CSS**.
+
+It focuses on operational efficiency rather than visual complexity.
+
+Key design goals include:
+
+- fast navigation
+- low cognitive load
+- minimal clicks for common tasks
+- responsive search
+- clear status indicators
+- consistent interaction patterns
+
+The frontend intentionally contains very little business logic.
+
+Operational decisions remain on the server.
+
+---
+
+## Layered Design
+
+The platform distinguishes several architectural layers.
+
+| Layer | Responsibility |
+|--------|----------------|
+| Presentation | React user interface |
+| API | HTTP endpoints, authentication, authorization |
+| Business Layer | Business rules and workflow orchestration |
+| Services | Communication with external systems |
+| Workers | Execution of PowerShell operations |
+| External Systems | Active Directory, Exchange, Citrix, Docusnap, TopDesk |
+
+Each layer has a clearly defined responsibility and communicates only through its adjacent layers.
+
+This minimizes dependencies and allows individual components to evolve independently.
+
+---
+
+# System Integrations
+
+ConnOps intentionally does **not** attempt to replace existing enterprise systems.
+
+Instead, it provides a unified operational interface while leaving authoritative data inside the original systems.
+
+### Active Directory
+
+Active Directory is the primary identity source.
+
+Current functionality includes:
+
+- user search
+- computer search
+- account enable/disable
+- password reset
+- account unlock
+- attribute editing
+- group membership management
+
+---
+
+### Microsoft Exchange
+
+Exchange is integrated internally as part of operational workflows.
+
+ConnOps currently exposes **no public Exchange API endpoints**.
+
+Exchange operations are executed only as part of higher-level business processes where mailbox administration is required.
+
+---
+
+### Citrix
+
+Citrix session information is imported into the platform to provide operational visibility.
+
+This allows administrators to correlate users, computers and active sessions without switching to separate management consoles.
+
+---
+
+### Docusnap
+
+Inventory information from Docusnap is integrated to enrich computer information with asset-related data.
+
+This enables administrators to combine directory information and inventory information inside one interface.
+
+Examples include:
+
+- device status
+- manufacturer
+- operating system
+- serial number
+- assigned user
+- inventory metadata
+
+---
+
+### TopDesk
+
+TopDesk serves as the IT Service Management integration.
+
+The long-term goal is to automate operational workflows triggered by approved service requests while preserving clear approval boundaries and complete auditability.
+
+---
+
+# Security
+
+Security is treated as an architectural concern rather than an afterthought.
+
+Major security principles include:
+
+- server-side authorization
+- session-based authentication
+- role-based access control
+- centralized permission enforcement
+- request validation
+- security headers
+- rate limiting for authentication endpoints
+- audit logging of administrative operations
+
+Permissions are evaluated on every protected request.
+
+Authentication, authorization and business logic remain clearly separated throughout the application.
+
+Sensitive operations are never delegated directly to the client.
+
+---
+
+# Audit & Observability
+
+Every administrative operation is designed to be traceable.
+
+Typical audit information includes:
+
+- actor
+- operation
+- target
+- timestamp
+- execution result
+- contextual metadata
+
+The audit log provides the operational history required for troubleshooting, accountability and compliance.
+
+Beyond security, audit information also serves as the foundation for operational reporting and future analytics.
+
+Future reporting capabilities build upon the same structured audit information rather than introducing separate logging mechanisms.
+
+---
+
+# Tech Stack
+
+| Area | Technology |
+|------|------------|
+| Frontend | React 18, Vite, Tailwind CSS |
+| Backend | Node.js, Express |
+| Authentication | Session-based authentication |
+| Authorization | Role-Based Access Control (RBAC) |
+| Directory Services | Microsoft Active Directory |
+| Automation | PowerShell |
+| Audit Storage | SQLite |
+| Process Data | PostgreSQL *(planned)* |
+| Reporting | PDF generation |
+| Asset Integration | Docusnap |
+| ITSM | TopDesk |
+| Virtualization | Citrix |
+
+The project intentionally combines modern web technologies with existing enterprise infrastructure instead of replacing proven administrative systems.
+
+---
+
+# Repository Structure
+
+```text
+ConnOps/
+├── backend/
+│   ├── actions/
+│   ├── middleware/
+│   ├── routes/
+│   ├── services/
+│   ├── workers/
+│   ├── data/
+│   └── server.js
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   └── ...
+│
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── API.md
+│   ├── SECURITY.md
+│   ├── TECHNICAL.md
+│   ├── DECISIONS.md
+│   ├── PATTERNS.md
+│   ├── PRODUCT.md
+│   ├── ROADMAP.md
+│   └── ...
+│
+└── README.md
 ```
-{
-  "action": "USER_DISABLE",
-  "actor": "admin.user",
-  "target": "employee.user",
-  "result": "success",
-  "requestId": "uuid"
-}
-```
 
-The logging pipeline includes SQLite audit persistence, rotating Winston log files, request correlation IDs, structured metadata, and CSV exports — making it possible to investigate incidents, track operational changes, debug workflows, and identify permission issues. Time-range reports (PDF/CSV) surface the same underlying data for admin review.
+The project follows a documentation-first approach. Architectural decisions, technical concepts and implementation guidelines are documented alongside the source code.
 
 ---
 
-## Security
+# Documentation
 
-[#security](#security)
+The repository contains comprehensive technical documentation describing both the architecture and the long-term design principles of the platform.
 
-- Server-side RBAC
-- Session-based authentication
-- Input validation (Zod)
-- Credential encryption
-- Security headers (Helmet) and rate limiting
-- Request auditing
-- Middleware-based authorization
-- Role separation
+| Document | Purpose |
+|----------|---------|
+| **PRODUCT.md** | Product vision, goals and functional scope |
+| **ROADMAP.md** | Planned features and development roadmap |
+| **ARCHITECTURE.md** | Overall system architecture and responsibilities |
+| **TECHNICAL.md** | Technical implementation details |
+| **API.md** | Public REST API documentation |
+| **SECURITY.md** | Authentication, authorization and security model |
+| **PATTERNS.md** | Reusable implementation patterns |
+| **DECISIONS.md** | Architectural Decision Records (ADRs) |
+| **DOCUMENTATION.md** | Documentation standards and hierarchy |
+| **GLOSSARY.md** | Shared terminology used across the project |
 
-API security test collections (Bruno) cover unauthorized access, validation failures, RBAC bypass attempts, and invalid session handling.
-
----
-
-## Technical Tradeoffs
-
-[#technical-tradeoffs](#technical-tradeoffs)
-
-**Split storage by data category (PostgreSQL + SQLite)** — organizational data and the change-queue (interrelated, relational data subject to active business-logic resolution) live in PostgreSQL, while the audit log (self-contained, append-only, immutable events) lives in a separate SQLite database. This keeps audit logging functional even if the operational database has an issue, without over-engineering a single shared store. See `docs/DECISIONS.md` (ADR-009 to ADR-011) for the full reasoning.
-
-**PowerShell integration instead of LDAP rewrite** — the organization depended heavily on existing PowerShell AD/Exchange workflows. Rather than replacing everything at once, I built an abstraction layer that allowed incremental migration, operational continuity, and lower risk. This dramatically reduced implementation risk and now also carries the Exchange integration.
+The documentation is maintained together with the codebase to ensure that architectural decisions remain transparent and reproducible.
 
 ---
 
-## Tech Stack
+# Getting Started
 
-[#tech-stack](#tech-stack)
+## Requirements
 
-| Area               | Technology                                    |
-| ------------------- | ---------------------------------------------- |
-| Frontend           | React, Vite, Tailwind CSS, Radix UI            |
-| Backend            | Node.js, Express                               |
-| Logging            | Winston                                        |
-| Databases          | PostgreSQL (process data), SQLite (audit log)  |
-| Automation         | PowerShell                                     |
-| Documents          | pdf-lib, pdfkit, signature_pad                 |
-| Validation         | Zod                                            |
-| Testing            | Bruno                                          |
-| Session Management | express-session                                |
+- Node.js 18+
+- npm
+- PowerShell 5.1 or newer
+- Active Directory environment
+- Windows Server (recommended for backend)
 
 ---
 
-## Getting Started
+## Backend
 
-[#getting-started](#getting-started)
-
-**Backend**
-
-```
+```bash
 cd backend
 npm install
-cp env.example .env
-node data/migrate.js   # sets up the PostgreSQL schema
 npm run dev
 ```
 
-**Frontend**
+---
 
-```
+## Frontend
+
+```bash
 cd frontend
 npm install
 npm run dev
@@ -203,44 +410,113 @@ npm run dev
 
 ---
 
-## Roadmap
+The application is intended to run inside an enterprise environment with access to the connected infrastructure components.
 
-[#roadmap](#roadmap)
-
-The platform is actively evolving based on operational feedback and newly identified workflow bottlenecks.
-
-### Secrets Management (In Planning)
-
-[#secrets-management-in-planning](#secrets-management-in-planning)
-
-Encrypting stored secrets (AD/Exchange/PostgreSQL/TopDesk credentials, session and webhook secrets) at rest via DPAPI instead of plain environment variables, reducing exposure if the host is compromised.
-
-### Admin Console Expansion (In Progress)
-
-[#admin-console-expansion-in-progress](#admin-console-expansion-in-progress)
-
-The admin area currently covers role-to-permission assignment. Additional tabs (health, audit, TopDesk configuration, system, general information) are planned as incremental additions without breaking the existing structure.
-
-### ITSM Integration (In Planning)
-
-[#itsm-integration-in-planning](#itsm-integration-in-planning)
-
-Deeper integration with the ITSM/ticketing system to automatically process HR-driven lifecycle events (onboarding, offboarding, department changes, role changes) — enabling the platform to orchestrate downstream AD/Exchange updates, permission adjustments, group membership changes, asset reassignment, and audit logging automatically.
-
-### What's Next
-
-[#whats-next](#whats-next)
-
-**Product Analytics** — Instrumenting the platform with PostHog for workflow completion funnels, operational bottlenecks, feature usage, session replay for support flows, and role-specific usage patterns.
-
-**Infrastructure** — Containerizing services and improving CI/CD automation.
-
-**Frontend** — Implementing optimistic UI updates, better filtering, real-time operational updates, and keyboard-first workflows.
+Some functionality depends on external systems such as Active Directory, Citrix or Docusnap and therefore cannot be fully demonstrated without those integrations.
 
 ---
 
-## Key Takeaways
+# Project Status
 
-[#key-takeaways](#key-takeaways)
+ConnOps is under active development.
 
-This project required full-stack ownership — frontend UX, backend architecture, authentication, audit systems, infrastructure decisions, and deployment scripts. It reinforced that internal tools benefit from the same product discipline as customer-facing software: reduce friction, improve feedback loops, instrument behavior, ship quickly, and iterate continuously.
+The current focus is on stabilizing the platform architecture before expanding automation capabilities.
+
+Existing functionality already covers the core administrative workflows for user and computer management while additional integrations continue to evolve.
+
+The project intentionally prioritizes architectural consistency and maintainability over rapid feature growth.
+
+---
+
+# Roadmap
+
+Current development focuses on the following areas:
+
+- Extended TopDesk workflow automation
+- Organization and department management
+- Expanded reporting capabilities
+- Improved health monitoring
+- Additional administrative configuration pages
+- Enhanced asset lifecycle management
+- Automated onboarding and offboarding workflows
+- Additional enterprise system integrations
+
+Future work is guided by operational requirements rather than technology trends.
+
+Every new feature should simplify administrative work, improve traceability or reduce repetitive manual tasks.
+
+---
+
+# Design Principles
+
+Several architectural principles guide the development of ConnOps.
+
+### Integrate instead of replace
+
+Existing enterprise systems remain the authoritative source of their respective data.
+
+ConnOps coordinates workflows between those systems instead of duplicating functionality.
+
+---
+
+### Separation of responsibilities
+
+Each architectural layer has a clearly defined responsibility.
+
+Presentation, API, business logic, integrations and infrastructure remain independent from one another wherever possible.
+
+---
+
+### Security by design
+
+Authentication, authorization, validation and auditing are built into the architecture rather than added afterwards.
+
+Administrative operations should always be attributable and reproducible.
+
+---
+
+### Documentation as part of the product
+
+Architecture documentation is treated as a first-class project artifact.
+
+Every significant architectural decision is documented to preserve long-term maintainability and reduce onboarding effort.
+
+---
+
+### Operational simplicity
+
+The platform is designed for real-world IT operations.
+
+Reducing clicks, minimizing context switching and simplifying recurring administrative tasks are considered primary design goals.
+
+---
+
+# Contributing
+
+At the current stage this repository is maintained as a private project.
+
+Contributions are intentionally limited while the architecture and documentation continue to mature.
+
+Once the overall platform architecture stabilizes, contribution guidelines may be published.
+
+---
+
+# License
+
+This repository is currently **not licensed for public reuse**.
+
+All rights reserved.
+
+---
+
+# Final Remarks
+
+ConnOps is more than a collection of administration scripts.
+
+It represents the gradual evolution from isolated operational tools towards a cohesive platform that emphasizes maintainability, security, traceability and automation.
+
+Rather than replacing proven enterprise systems, ConnOps provides a consistent operational layer that connects them through clearly defined interfaces and documented architectural principles.
+
+The project continues to evolve alongside operational requirements, with every architectural decision guided by one central objective:
+
+> **Make daily IT operations simpler, safer and easier to understand.**
