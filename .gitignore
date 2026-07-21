@@ -1,0 +1,17 @@
+node_modules/
+.env
+backend/data/*.db
+backend/data/*.db-shm
+backend/data/*.db-wal
+backend/data/*.json
+backend/logs/*.log
+backend/logs/.*-audit.json
+logs/*.log
+logs/.*-audit.json
+frontend/output/
+secrets.dat
+.env.bak-*
+backend/data/handover/
+connops_migration_*/
+*.log.gz
+cookie.txt

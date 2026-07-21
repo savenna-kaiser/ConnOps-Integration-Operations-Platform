@@ -1,0 +1,4 @@
+Key;HostName;HostTypeID;ActiveUser;OS;OSArchitecture;BiosSerial;SystemManufacturer;LastBootUpTime;SystemProductName;BuildNumber;ONC;Status;Kommentar;LetzteAenderung;isNew
+PCEXM001__SAMPLE01;PCEXM001;Arbeitsstation;MUSTERSTADT\jmueller;Microsoft Windows 10 Pro;64-Bit;SAMPLE01;Dell Inc.;01.01.2026 07:39:46;OptiPlex 7020;19045.0000;[1,1]\[1,2];Neu;;2026-01-01T08:00:00.000Z;true
+PCEXM002__SAMPLE02;PCEXM002;Arbeitsstation;MUSTERSTADT\asample;Microsoft Windows 10 Enterprise;64-Bit;SAMPLE02;Dell Inc.;02.01.2026 09:55:20;OptiPlex 3020M;19045.0000;[1,1]\[1,2];Neu;;2026-01-01T08:00:00.000Z;true
+PCEXM003__SAMPLE03;PCEXM003;Arbeitsstation;MUSTERSTADT\100002;Microsoft Windows 11 Pro;64-Bit;SAMPLE03;Dell Inc.;03.01.2026 14:59:15;OptiPlex 7020;22631.0000;[1,1]\[1,2];Neu;;2026-01-01T08:00:00.000Z;true
