@@ -1,285 +1,246 @@
-# IT Workflow & Operations Platform
+# ConnOps — IT Operations Platform
 
-> Web-based IT Operations Platform for Active Directory management — internes Tool der IT-Administration, Stadt Musterstadt.
+[#connops-it-operations-platform](#connops-it-operations-platform)
+> A full-stack internal platform built to replace fragmented manual IT administration workflows with centralized, auditable, and automation-friendly tooling.
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://react.dev)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-5391FE?logo=powershell&logoColor=white)](https://microsoft.com/powershell)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Process--Data-4169E1?logo=postgresql&logoColor=white)](https://postgresql.org)
 [![SQLite](https://img.shields.io/badge/SQLite-Audit--Log-003B57?logo=sqlite&logoColor=white)](https://sqlite.org)
 
 ---
 
-## Features
+## Why I Built This
 
-| Modul | Beschreibung |
-|---|---|
-| **AD-Benutzerverwaltung** | Suche, aktivieren/deaktivieren, entsperren, Passwort zurücksetzen, Gruppen verwalten, Stammdaten bearbeiten |
-| **AD-Computerverwaltung** | Computersuche, aktivieren/deaktivieren, Citrix-Session je Computer |
-| **Citrix Session Monitoring** | Aktive Sessions aus CSV, Zuordnung Benutzer ↔ Client-PC |
-| **Docusnap Asset-Tracking** | Geräteliste aus Docusnap-CSV, Statusverwaltung, QR-Code-Workflow, Import |
-| **Audit-Log** | Vollständige Protokollierung in SQLite + Winston (30 Tage Rotation), CSV-Export |
-| **Globale Suche** | Kombinierte Echtzeit-Suche nach Benutzern und Computern |
-| **RBAC** | Drei Rollen: `helpdesk`, `it-admin`, `it-lead` – via AD-Gruppe oder `.env` |
-| **Dark Mode** | Persistierter Theme-Toggle |
+[#why-i-built-this](#why-i-built-this)
+
+At my company, many IT processes still relied on large PowerShell scripts, manual Active Directory operations, disconnected CSV exports, and no centralized audit trail. The result was significant operational friction:
+
+- Onboarding/offboarding took too long
+- Support staff manually logged into multiple enterprise systems for routine operations
+- Every account or device change required navigating separate administrative interfaces
+- Operational changes were difficult to trace afterward
+- Repetitive workflows consumed large amounts of time
+- Fragmented tooling increased context switching and overhead
+- Support staff had inconsistent permissions
+
+That meant constant context switching between Active Directory tools, Exchange administration, Citrix administration, inventory systems, and internal management portals — with no single source of truth.
+
+This platform centralizes and standardizes those operations into a single product with a clean web interface, role-based access control, centralized audit logging, reusable backend actions, automation hooks, and operational observability.
+> I strongly believe internal tools deserve the same product thinking as customer-facing software. Poor operational tooling creates hidden friction that compounds daily across support and infrastructure teams.
+---
+
+## Core Features
+
+[#core-features](#core-features)
+
+| Feature                       | Description                                                                                   |
+| ------------------------------ | --------------------------------------------------------------------------------------------- |
+| **AD User Management**        | Search, enable/disable, unlock, reset passwords, edit metadata, manage group memberships      |
+| **Computer Management**       | Search AD computers, enable/disable machines, associate devices with sessions                 |
+| **Exchange Mailbox Management** | On-prem mailbox operations through the same PowerShell worker-pool abstraction as AD          |
+| **Citrix Session Monitoring** | Import active sessions from CSV, map users to client machines                                 |
+| **Asset Tracking**            | Docusnap CSV import pipeline, device status tracking, QR-code workflows, inventory visibility |
+| **Asset Handover**            | Digitally signed PDF handover documents (letterhead + signature pad), per-user history         |
+| **Organization Management**   | Departments and roles as the foundation for automated workflows (write access: `it-lead` only) |
+| **Reports**                   | Time-range reports across user/computer/TopDesk activity, exportable as PDF or CSV             |
+| **Admin Console**             | Role-to-permission assignment, expanding incrementally to further config areas                |
+| **RBAC**                      | Three roles: `helpdesk`, `it-admin`, `it-lead` — enforced server-side                         |
+| **Audit Logging**             | Every operation logged with actor, target, timestamp, result, request ID, and metadata        |
+| **Global Search**             | Unified search across users and computers                                                     |
 
 ---
 
-## Technologie-Stack
+## Product Thinking
 
-### Backend
-- **Node.js + Express** – REST API, Session-Management
-- **PowerShell Bridge** – Worker-Pool für AD-Operationen via RSAT
-- **better-sqlite3** – Audit-Log Datenbank mit WAL-Mode
-- **Winston + DailyRotateFile** – Strukturiertes Logging, 30 Tage Rotation
-- **express-session** – Cookie-basierte Session mit Idle-Timeout
-- **csv-parser** – Docusnap CSV-Import
+[#product-thinking](#product-thinking)
+
+This project was intentionally designed like a product, not just an internal script collection.
+
+| Goal                        | Implementation                      |
+| ---------------------------- | ------------------------------------ |
+| Reduce operational toil     | Centralized workflows + automation  |
+| Prevent unsafe operations   | RBAC + validation layers            |
+| Make actions traceable      | Structured audit logs               |
+| Improve developer velocity  | Modular action architecture         |
+| Support future integrations | Service-oriented backend            |
+| Keep ops simple              | Minimal infrastructure requirements |
+
+A major focus was balancing developer ergonomics, operational safety, extensibility, and low deployment complexity.
+
+---
+
+## Architecture
+
+[#architecture](#architecture)
 
 ### Frontend
-- **React 18 + Vite** – SPA mit React Router v6
-- **Tailwind CSS** – Utility-first Styling mit CSS-Variablen
-- **Lucide React** – Icon-Set
-- **html5-qrcode + qrcode.react** – QR-Scanner und QR-Code-Generierung
 
-### Tooling
-- **Bruno** – API-Tests (Auth, RBAC, Sicherheitstests)
-- **deploy.ps1** – Deployment-Skript
+[#frontend](#frontend)
+
+**Stack:** React 18, Vite, Tailwind CSS, Radix UI primitives, React Router
+
+The frontend is intentionally thin — business logic lives in backend actions. Design goals: operational speed, low cognitive overhead, minimal clicks for repetitive tasks, fast rendering for large result sets.
+
+### Backend
+
+[#backend](#backend)
+
+**Stack:** Node.js, Express, PowerShell integration layer, PostgreSQL, SQLite, Winston
+
+The backend acts as the orchestration layer between Active Directory, Exchange, Citrix exports, Docusnap data, TopDesk, and internal automation workflows. A key architectural decision was separating routes, actions, services, and middleware — this made the codebase significantly easier to extend.
+
+### Action-Based Architecture
+
+[#action-based-architecture](#action-based-architecture)
+
+One of the most important architectural decisions was introducing isolated backend actions:
+
+```
+routes/users.js
+  → actions/user/disableUser.js
+    → services/adClient.js
+      → PowerShell worker
+```
+
+Benefits: easier testing, smaller failure surface, reusable business logic, centralized audit logging, cleaner authorization boundaries. The same pattern now extends to Exchange (`services/exchangeClient.js`) and TopDesk change execution.
+
+### PowerShell Worker Pool
+
+[#powershell-worker-pool](#powershell-worker-pool)
+
+Active Directory and Exchange operations run through a shared PowerShell bridge with a worker abstraction layer, centralized execution, structured error handling, and isolated operational actions — reducing duplicated logic and shell execution risks while leveraging existing enterprise tooling.
 
 ---
 
-## Projektstruktur
+## Auditability & Observability
+
+[#auditability--observability](#auditability--observability)
+
+Every critical action writes a structured log entry:
 
 ```
-AD Manager Dashboard/
-├── backend/
-│   ├── actions/                    # Business-Logik (eine Datei pro Operation)
-│   │   ├── auth/adLogin.js
-│   │   ├── topdesk/processTopdeskChanges.js
-│   │   └── user/                   # enable, disable, unlock, reset, edit, groups …
-│   ├── data/
-│   │   ├── assets.csv              # Docusnap Asset-Datenbank (persistent)
-│   │   └── audit.db                # SQLite Audit-Log
-│   ├── jobs/scheduler.js           # Cron-Jobs (TopDesk-Automation)
-│   ├── logs/                       # Winston Audit-Logs (30 Tage, gzip)
-│   ├── middleware/
-│   │   ├── auditMiddleware.js      # Request-Kontext, Idle-Timeout
-│   │   ├── authMiddleware.js       # Session-Prüfung
-│   │   ├── rbac.js                 # Rollen & Berechtigungen
-│   │   └── validation.js           # Input-Validierung (Joi/express-validator)
-│   ├── powershell/
-│   │   └── psWorker.ps1            # PowerShell Worker-Pool (AD-Operationen)
-│   ├── routes/
-│   │   ├── auth.js                 # Login, Logout, /me
-│   │   ├── auditRoute.js           # Audit-Log API
-│   │   ├── citrix.js               # Citrix Session Lookup
-│   │   ├── computers.js            # Computer-Verwaltung
-│   │   ├── docusnap.js             # Asset-Tracking
-│   │   ├── topdesk.js              # TopDesk Webhook + Verarbeitung
-│   │   └── users.js                # Benutzer-Verwaltung
-│   ├── services/
-│   │   ├── adClient.js             # AD-API (PowerShell-Abstraktionsschicht)
-│   │   ├── auditLog.js             # SQLite + Winston Audit-Service
-│   │   ├── citrixService.js        # Citrix CSV-Parser (BOM-aware)
-│   │   ├── credentialCrypto.js     # Session-Credential-Verschlüsselung
-│   │   ├── powershellBridge.js     # PS Worker-Pool-Manager
-│   │   └── withAudit.js            # Audit-Wrapper für Actions
-│   ├── server.js
-│   └── package.json
-│
-├── frontend/
-│   ├── src/
-│   │   ├── api/client.js           # Zentraler API-Client
-│   │   ├── components/
-│   │   │   ├── layout/AppShell.jsx # Sidebar, Topbar, globale Suche
-│   │   │   └── user/               # GlobalSearch, EditUserModal
-│   │   ├── hooks/                  # useAuth, useTheme
-│   │   ├── pages/
-│   │   │   ├── AuditPage.jsx
-│   │   │   ├── ComputerPage.jsx
-│   │   │   ├── DocusnapPage.jsx
-│   │   │   ├── HomePage.jsx
-│   │   │   ├── LoginPage.jsx
-│   │   │   └── UserPage.jsx
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── index.html
-│   └── package.json
-│
-├── Bruno/                          # API-Tests
-│   ├── Auth/
-│   ├── Helpdesk/
-│   ├── IT-Admin/
-│   ├── IT-Lead/
-│   └── Sicherheitstests/
-│
-└── deploy.ps1
+{
+  "action": "USER_DISABLE",
+  "actor": "admin.user",
+  "target": "employee.user",
+  "result": "success",
+  "requestId": "uuid"
+}
 ```
+
+The logging pipeline includes SQLite audit persistence, rotating Winston log files, request correlation IDs, structured metadata, and CSV exports — making it possible to investigate incidents, track operational changes, debug workflows, and identify permission issues. Time-range reports (PDF/CSV) surface the same underlying data for admin review.
 
 ---
 
-## Voraussetzungen
+## Security
 
-- **Windows Server** mit RSAT (Active Directory PowerShell-Modul installiert)
-- **Node.js 18+** auf dem Server
-- **Citrix Delivery Controller** – CSV-Export der Sessions (z. B. alle 5 Minuten per Scheduled Task)
-- **Docusnap** – CSV-Export erreichbar unter UNC-Pfad
-- **Netzwerkzugang** zum AD-Domain Controller
+[#security](#security)
+
+- Server-side RBAC
+- Session-based authentication
+- Input validation (Zod)
+- Credential encryption
+- Security headers (Helmet) and rate limiting
+- Request auditing
+- Middleware-based authorization
+- Role separation
+
+API security test collections (Bruno) cover unauthorized access, validation failures, RBAC bypass attempts, and invalid session handling.
 
 ---
 
-## Installation
+## Technical Tradeoffs
 
-### 1. Repository klonen
+[#technical-tradeoffs](#technical-tradeoffs)
 
-```powershell
-git clone https://github.com/savenna-kaiser/IT-Operations-Platform
-cd "AD Manager Dashboard"
+**Split storage by data category (PostgreSQL + SQLite)** — organizational data and the change-queue (interrelated, relational data subject to active business-logic resolution) live in PostgreSQL, while the audit log (self-contained, append-only, immutable events) lives in a separate SQLite database. This keeps audit logging functional even if the operational database has an issue, without over-engineering a single shared store. See `docs/DECISIONS.md` (ADR-009 to ADR-011) for the full reasoning.
+
+**PowerShell integration instead of LDAP rewrite** — the organization depended heavily on existing PowerShell AD/Exchange workflows. Rather than replacing everything at once, I built an abstraction layer that allowed incremental migration, operational continuity, and lower risk. This dramatically reduced implementation risk and now also carries the Exchange integration.
+
+---
+
+## Tech Stack
+
+[#tech-stack](#tech-stack)
+
+| Area               | Technology                                    |
+| ------------------- | ---------------------------------------------- |
+| Frontend           | React, Vite, Tailwind CSS, Radix UI            |
+| Backend            | Node.js, Express                               |
+| Logging            | Winston                                        |
+| Databases          | PostgreSQL (process data), SQLite (audit log)  |
+| Automation         | PowerShell                                     |
+| Documents          | pdf-lib, pdfkit, signature_pad                 |
+| Validation         | Zod                                            |
+| Testing            | Bruno                                          |
+| Session Management | express-session                                |
+
+---
+
+## Getting Started
+
+[#getting-started](#getting-started)
+
+**Backend**
+
 ```
-
-### 2. Backend einrichten
-
-```powershell
 cd backend
 npm install
-copy .env.example .env
-# .env anpassen (siehe Konfiguration)
+cp env.example .env
+node data/migrate.js   # sets up the PostgreSQL schema
+npm run dev
 ```
 
-### 3. Frontend bauen
+**Frontend**
 
-```powershell
-cd ..\frontend
+```
+cd frontend
 npm install
-npm run build
+npm run dev
 ```
-
-Das Build-Output (`dist/`) wird vom Express-Server statisch ausgeliefert.
-
-### 4. Server starten
-
-```powershell
-cd ..\backend
-node server.js
-```
-
-Produktivbetrieb: über `deploy.ps1` als Windows-Dienst einrichten.
 
 ---
 
-## Konfiguration (`.env`)
+## Roadmap
 
-```env
-# ── Server ───────────────────────────────────────────────────
-NODE_ENV=production
-PORT=3000
-SESSION_SECRET=<min. 32 zufällige Zeichen>
-SESSION_IDLE_TIMEOUT_MIN=30
+[#roadmap](#roadmap)
 
-# ── Active Directory ─────────────────────────────────────────
-AD_DC=musterstadt.example
-AD_DOMAIN=MUSTERSTADT
-AD_BASE_DN=DC=musterstadt,DC=example,DC=de
+The platform is actively evolving based on operational feedback and newly identified workflow bottlenecks.
 
-# Ziel-OUs beim Deaktivieren
-AD_INACTIVE_USERS_OU=OU=Users,OU=_Inactive,DC=...
-AD_INACTIVE_COMPUTERS_OU=OU=Computers,OU=_Inactive,DC=...
+### Secrets Management (In Planning)
 
-# Gruppen-OUs
-AD_GROUP_OU=OU=GROUP,DC=...
-AD_PRINTER_OU=OU=Druckergruppen,DC=...
-AD_EXCHANGE_OU=OU=Verteiler,OU=Exchange,DC=...
+[#secrets-management-in-planning](#secrets-management-in-planning)
 
-# Service-Account für TopDesk-Automation (kein persönliches Konto)
-AD_SERVICE_ACCOUNT=MUSTERSTADT\svc-admanager
-AD_SERVICE_PASSWORD=<passwort>
+Encrypting stored secrets (AD/Exchange/PostgreSQL/TopDesk credentials, session and webhook secrets) at rest via DPAPI instead of plain environment variables, reducing exposure if the host is compromised.
 
-# Initiales Passwort für neu angelegte Benutzer
-AD_NEW_USER_INITIAL_PASSWORD=<initiales-passwort>
+### Admin Console Expansion (In Progress)
 
-# ── Citrix ───────────────────────────────────────────────────
-AD_SESSIONS_CSV=\\server\share\Sessions.csv
+[#admin-console-expansion-in-progress](#admin-console-expansion-in-progress)
 
-# ── RBAC – Rollenzuweisung ───────────────────────────────────
-# Option A: AD-Gruppen (empfohlen)
-RBAC_GROUP_IT_LEADS=GRP_ADManager_Lead
-RBAC_GROUP_IT_ADMINS=GRP_ADManager_Admin
-RBAC_GROUP_HELPDESK=GRP_ADManager_Helpdesk
+The admin area currently covers role-to-permission assignment. Additional tabs (health, audit, TopDesk configuration, system, general information) are planned as incremental additions without breaking the existing structure.
 
-# Option B: Fallback via SAM-Account-Listen (kommasepariert)
-RBAC_IT_LEADS=admin100001
-RBAC_IT_ADMINS=
-RBAC_HELPDESK=
+### ITSM Integration (In Planning)
 
-# ── TopDesk ──────────────────────────────────────────────────
-TOPDESK_URL=https://deine-instanz.topdesk.net
-TOPDESK_USERNAME=api-user@musterstadt.de
-TOPDESK_APP_PASSWORD=<application-password>
-TOPDESK_CAT_EINTRITT=Eintritt
-TOPDESK_CAT_AUSTRITT=Austritt
-TOPDESK_CAT_ABTW=Abteilungswechsel
-TOPDESK_WEBHOOK_SECRET=<langer-zufallsstring>
-TOPDESK_CRON_ENABLED=false
-TOPDESK_CRON_INTERVAL_MIN=15
+[#itsm-integration-in-planning](#itsm-integration-in-planning)
 
-# ── PowerShell Bridge ────────────────────────────────────────
-PS_POOL_SIZE=3
-PS_CMD_TIMEOUT=8000
-PS_MAX_RESTARTS=5
-```
+Deeper integration with the ITSM/ticketing system to automatically process HR-driven lifecycle events (onboarding, offboarding, department changes, role changes) — enabling the platform to orchestrate downstream AD/Exchange updates, permission adjustments, group membership changes, asset reassignment, and audit logging automatically.
 
-> **Wichtig:** Die `.env`-Datei niemals ins Repository committen. Sie ist in `.gitignore` eingetragen.
+### What's Next
+
+[#whats-next](#whats-next)
+
+**Product Analytics** — Instrumenting the platform with PostHog for workflow completion funnels, operational bottlenecks, feature usage, session replay for support flows, and role-specific usage patterns.
+
+**Infrastructure** — Containerizing services and improving CI/CD automation.
+
+**Frontend** — Implementing optimistic UI updates, better filtering, real-time operational updates, and keyboard-first workflows.
 
 ---
 
-## RBAC – Rollen & Berechtigungen
+## Key Takeaways
 
-| Berechtigung | helpdesk | it-admin | it-lead |
-|---|:---:|:---:|:---:|
-| Benutzer suchen | ✅ | ✅ | ✅ |
-| Benutzer entsperren | ✅ | ✅ | ✅ |
-| Passwort zurücksetzen | ✅ | ✅ | ✅ |
-| Gruppen lesen | ✅ | ✅ | ✅ |
-| Benutzer aktivieren/deaktivieren | ❌ | ✅ | ✅ |
-| Stammdaten bearbeiten | ❌ | ✅ | ✅ |
-| Gruppen verwalten | ❌ | ✅ | ✅ |
-| Computer verwalten | ❌ | ✅ | ✅ |
-| Audit-Log lesen | ❌ | ✅ | ✅ |
-| Audit-Log exportieren (CSV) | ❌ | ❌ | ✅ |
-| TopDesk Batch-Verarbeitung | ❌ | ❌ | ✅ |
+[#key-takeaways](#key-takeaways)
 
-Die Rollenzuweisung erfolgt beim Login automatisch anhand der AD-Gruppenmitgliedschaft (`RBAC_GROUP_*`). Als Fallback können SAM-Accounts direkt in der `.env` eingetragen werden.
-
----
-
-## API-Tests (Bruno)
-
-Die `Bruno/`-Collection enthält fertige Tests für alle Rollen und Sicherheitsszenarien:
-
-```
-Bruno/
-├── Auth/             Login, Logout, Session-Check
-├── Helpdesk/         Erlaubte (200) und verbotene (403) Operationen
-├── IT-Admin/         Admin-spezifische Operationen
-├── IT-Lead/          Lead-exklusive Funktionen (Batch-Processing)
-└── Sicherheitstests/ Input-Validierung, CSRF, Webhook-Authentifizierung
-```
-
-Environment `local` auswählen und Collection in Bruno öffnen.
-
----
-
-## Audit-Log
-
-Alle Aktionen werden doppelt gespeichert:
-
-| Speicher | Pfad | Zweck |
-|---|---|---|
-| **SQLite** | `data/audit.db` | Durchsuchbar, paginierbar, filterbar – Basis für die UI |
-| **Winston** | `logs/audit-YYYY-MM-DD.log` | JSON-Lines, 30 Tage Rotation, automatisch komprimiert |
-
-CSV-Export (nur `it-lead`) über die Audit-Seite im Frontend – exportiert die aktuelle Filterauswahl.
-
----
-
-## Lizenz
-
-Internes Tool – Stadt Musterstadt, IT-Administration. Nicht zur Weitergabe bestimmt.
+This project required full-stack ownership — frontend UX, backend architecture, authentication, audit systems, infrastructure decisions, and deployment scripts. It reinforced that internal tools benefit from the same product discipline as customer-facing software: reduce friction, improve feedback loops, instrument behavior, ship quickly, and iterate continuously.
