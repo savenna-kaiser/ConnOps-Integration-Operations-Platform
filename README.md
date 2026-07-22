@@ -264,6 +264,7 @@ The technology choices intentionally favor operational simplicity and long-term 
 
 ---
 
+```text
 ConnOps/
 │
 ├── backend/
