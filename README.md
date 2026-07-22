@@ -94,20 +94,22 @@ The platform focuses on simplifying day-to-day administration rather than replac
 ConnOps follows a layered architecture that separates presentation, business logic, integrations and infrastructure.
 
 ```text
-                 React Frontend
-                        │
-                        ▼
-                REST API (Express)
-                        │
-                        ▼
-                 Business Layer
-                        │
-       ┌────────────────┼────────────────┐
-       ▼                ▼                ▼
- Active Directory   Docusnap        TopDesk
-       │
-       ▼
- PowerShell Worker
+               React Frontend
+                       │
+                       ▼
+               REST API (Express)
+                       │
+                       ▼
+                Business Layer
+                       │
+   ┌───────────┬───────┼───────┬───────────┐
+   ▼           ▼       ▼       ▼           ▼
+Active      Exchange  Citrix  Docusnap   TopDesk
+Directory                                   │
+   │                                        ▼
+   ▼                                 (ingest worker /
+PowerShell                            scheduler)
+ Worker
 ```
 
 The API layer intentionally contains no business logic.
@@ -227,18 +229,16 @@ ConnOps follows a **documentation-first** approach.
 
 The architecture, security model and technical decisions are documented alongside the source code. Documentation is considered part of the product and evolves together with the implementation.
 
-| Document | Purpose |
-|----------|---------|
-| **PRODUCT.md** | Product vision, scope and functional goals |
-| **ROADMAP.md** | Planned features and long-term development roadmap |
-| **ARCHITECTURE.md** | System architecture and component responsibilities |
-| **TECHNICAL.md** | Technical implementation details |
-| **API.md** | Public REST API documentation |
-| **SECURITY.md** | Authentication, authorization and security concepts |
-| **PATTERNS.md** | Reusable architectural and implementation patterns |
-| **DECISIONS.md** | Architectural Decision Records (ADRs) |
-| **DOCUMENTATION.md** | Documentation standards and document hierarchy |
-| **GLOSSARY.md** | Shared terminology used throughout the project |
+| Document             | Purpose                                             |
+| -------------------- | ---------------------------------------------------- |
+| **ARCHITECTURE.md**  | System architecture and component responsibilities   |
+| **TECHNICAL.md**     | Technical implementation details                     |
+| **SECURITY.md**      | Authentication, authorization and security concepts  |
+| **PATTERNS.md**      | Reusable architectural and implementation patterns   |
+| **DECISIONS.md**     | Architectural Decision Records (ADRs)                |
+| **DOCUMENTATION.md** | Documentation standards and document hierarchy       |
+
+Additional planned documents (product scope, API reference, glossary) are not yet written.
 
 The documentation is intentionally separated into focused documents rather than one large design specification. This keeps responsibilities clear and allows each document to evolve independently.
 
@@ -246,52 +246,49 @@ The documentation is intentionally separated into focused documents rather than 
 
 # Tech Stack
 
-| Area | Technology |
-|------|------------|
-| Frontend | React 18, Vite, Tailwind CSS |
-| Backend | Node.js, Express |
-| Authentication | Session-based authentication |
-| Authorization | Role-Based Access Control (RBAC) |
-| Directory Services | Microsoft Active Directory |
-| Automation | PowerShell |
-| Asset Management | Docusnap |
-| ITSM | TopDesk |
-| Virtualization | Citrix |
-| Audit Storage | SQLite |
-| Process Data | PostgreSQL *(planned)* |
+| Area               | Technology                       |
+| ------------------ | --------------------------------- |
+| Frontend           | React 18, Vite, Tailwind CSS      |
+| Backend            | Node.js, Express                  |
+| Authentication     | Session-based authentication      |
+| Authorization      | Role-Based Access Control (RBAC)  |
+| Directory Services | Microsoft Active Directory        |
+| Automation         | PowerShell                        |
+| Asset Management   | Docusnap                          |
+| ITSM               | TopDesk                           |
+| Virtualization     | Citrix                            |
+| Organizational & Process Data | PostgreSQL              |
+| Audit Log Storage  | SQLite                            |
 
-The technology choices intentionally favor operational simplicity and long-term maintainability over unnecessary complexity.
+The technology choices intentionally favor operational simplicity and long-term maintainability over unnecessary complexity. PostgreSQL holds organizational reference data (departments, roles, permissions, AD group mappings) and process state (e.g. TopDesk change resolution), while SQLite is used specifically for the searchable, append-heavy audit log — a deliberate separation between operational data and audit trail storage.
 
 ---
 
-# Repository Structure
-
-```text
 ConnOps/
 │
 ├── backend/
-│   ├── actions/
+│   ├── actions/       # Business actions per domain (auth, user, topdesk)
+│   ├── data/          # PostgreSQL pool, schema migrations, seed data
+│   ├── jobs/          # Ingest worker + scheduler (webhook/cron-driven automation)
 │   ├── middleware/
+│   ├── powershell/    # AD/Exchange automation scripts, secret encryption
 │   ├── routes/
-│   ├── services/
-│   ├── workers/
-│   └── data/
+│   ├── services/      # Integration clients (AD, Citrix, TopDesk, Exchange), audit log
+│   ├── tools/         # Operational/maintenance scripts
+│   ├── utils/
+│   └── logs/          # Rotating audit log files (Winston)
 │
 ├── frontend/
 │   ├── src/
 │   └── public/
 │
 ├── docs/
-│   ├── PRODUCT.md
-│   ├── ROADMAP.md
 │   ├── ARCHITECTURE.md
-│   ├── TECHNICAL.md
-│   ├── API.md
-│   ├── SECURITY.md
-│   ├── PATTERNS.md
 │   ├── DECISIONS.md
 │   ├── DOCUMENTATION.md
-│   └── GLOSSARY.md
+│   ├── PATTERNS.md
+│   ├── SECURITY.md
+│   └── TECHNICAL.md
 │
 └── README.md
 ```
