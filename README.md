@@ -227,20 +227,26 @@ Observability is treated as an integral part of the platform rather than a separ
 
 ConnOps follows a **documentation-first** approach.
 
-The architecture, security model and technical decisions are documented alongside the source code. Documentation is considered part of the product and evolves together with the implementation.
+The architecture, security model, technical implementation and operational procedures are documented alongside the source code. Documentation is considered part of the product and evolves together with the implementation.
 
-| Document             | Purpose                                             |
+| Document | Purpose |
 | -------------------- | ---------------------------------------------------- |
-| **ARCHITECTURE.md**  | System architecture and component responsibilities   |
-| **TECHNICAL.md**     | Technical implementation details                     |
-| **SECURITY.md**      | Authentication, authorization and security concepts  |
-| **PATTERNS.md**      | Reusable architectural and implementation patterns   |
-| **DECISIONS.md**     | Architectural Decision Records (ADRs)                |
-| **DOCUMENTATION.md** | Documentation standards and document hierarchy       |
+| **ARCHITECTURE.md** | System architecture and component responsibilities |
+| **TECHNICAL.md** | Technical implementation details |
+| **SECURITY.md** | Authentication, authorization and security concepts |
+| **PATTERNS.md** | Reusable architectural and implementation patterns |
+| **DECISIONS.md** | Architectural Decision Records (ADRs) |
+| **DOCUMENTATION.md** | Documentation standards and document hierarchy |
+| **DEPLOYMENT.md** | Installation, configuration, update and rollback procedures |
+| **OPERATIONS.md** | Operational principles, monitoring and recurring activities |
+| **API.md** | Technical API reference and endpoint documentation |
+| **ADMIN_GUIDE.md** | Administration tasks and operational usage |
+| **USER_GUIDE.md** | User-oriented usage instructions | planned
+| **GLOSSARY.md** | Shared terminology and definitions | planned
 
-Additional planned documents (product scope, API reference, glossary) are not yet written.
+The documentation is intentionally separated into focused documents rather than one large design specification. Each document has a defined responsibility and ownership within the documentation hierarchy. This keeps responsibilities clear, prevents duplication and allows individual documents to evolve independently.
 
-The documentation is intentionally separated into focused documents rather than one large design specification. This keeps responsibilities clear and allows each document to evolve independently.
+Normative documents define principles, responsibilities and constraints. Operational documents describe how ConnOps is used and operated within the defined boundaries. Implementation details and concrete technical behavior are maintained in the documents responsible for those aspects.
 
 ---
 
