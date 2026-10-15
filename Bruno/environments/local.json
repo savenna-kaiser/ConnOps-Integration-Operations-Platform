@@ -1,0 +1,80 @@
+{
+  "name": "local",
+  "variables": [
+    {
+      "name": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "text",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "helpdesk_user",
+      "value": "test.helpdesk",
+      "type": "text",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "helpdesk_pass",
+      "value": "",
+      "type": "text",
+      "enabled": true,
+      "secret": true
+    },
+    {
+      "name": "lead_user",
+      "value": "test.lead",
+      "type": "text",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "lead_pass",
+      "value": "",
+      "type": "text",
+      "enabled": true,
+      "secret": true
+    },
+    {
+      "name": "admin_user",
+      "value": "test.admin",
+      "type": "text",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "admin_pass",
+      "value": "",
+      "type": "text",
+      "enabled": true,
+      "secret": true
+    },
+    {
+      "name": "test_sam",
+      "value": "IT-Test",
+      "type": "text",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "test_group_dn",
+      "value": "OU=ORG_08, DC=corp, DC=example, DC=com",
+      "type": "text",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "topdesk_webhook_secret",
+      "value": "change-me",
+      "type": "text",
+      "enabled": true,
+      "secret": false
+    }
+  ],
+  "info": {
+    "type": "bruno-environment",
+    "exportedAt": "2026-04-30T07:23:11.877Z",
+    "exportedUsing": "Bruno/v3.3.0"
+  }
+}
